@@ -27,7 +27,6 @@ const RegisterPage = () => {
 
     const onSubmit = async(data) => {
         const resp = await startRegister(data);
-        console.log(resp);
         setErrorsForm(resp);
     };
 

@@ -2,10 +2,11 @@ import React, {useState} from 'react';
 import { FaRegEyeSlash, FaRegEye  } from 'react-icons/fa6';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom'; // Importa el componente Link
+import { useAuthStore } from '../../hooks';
 const LoginPage = () => {
-
+    const {startLogin} = useAuthStore();
     const [showPassword, setShowPassword] = useState(false);
-
+    const [errorsForm, setErrorsForm] = useState({});
     const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
     const {
@@ -20,8 +21,9 @@ const LoginPage = () => {
     });
 
 
-    const onSubmit = data => {
-        console.log(data);
+    const onSubmit = async(data) => {
+        const resp = await startLogin(data);
+        setErrorsForm(resp);
     };
 
     return (

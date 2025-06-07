@@ -3,6 +3,7 @@ import { authSlice } from './auth';
 import storage from 'redux-persist/lib/storage'; // default es localStorage
 import { persistReducer, persistStore } from 'redux-persist';
 import { combineReducers } from 'redux';
+import { uiSlice } from './ui';
 
 const persistConfig = {
   key: 'root',
@@ -12,6 +13,7 @@ const persistConfig = {
 
 const rootReducer = combineReducers({
   auth: authSlice.reducer,
+  ui: uiSlice.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
