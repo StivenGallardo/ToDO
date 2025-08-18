@@ -2,12 +2,14 @@ import { useDispatch, useSelector } from "react-redux"
 import { login, logout, onLoading} from "../store";
 import managerProjectApi from "../api/managerProjectApi";
 import { useNavigate } from "react-router-dom";
+import { useWorkSpaceStore } from "./useWorkSpaceStore";
 
 export const useAuthStore = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const {status, user} = useSelector(state => state.auth);
-
+    const {startSetWorksSpaces} = useWorkSpaceStore();
+    
     const startLogin = async(user) => {
         dispatch(onLoading(true));
         try {
@@ -16,6 +18,7 @@ export const useAuthStore = () => {
             localStorage.setItem('token-init-date', new Date().getTime());
             dispatch(login(data.user));
             dispatch(onLoading(false));
+            startSetWorksSpaces();
             navigate('/dashboard');
         } catch (error) {
             console.log(error);
@@ -38,6 +41,7 @@ export const useAuthStore = () => {
             localStorage.setItem('token', data.token);
             localStorage.setItem('token-init-date', new Date().getTime());
             dispatch(login(data.user));
+            startSetWorksSpaces();
             dispatch(onLoading(false));
             navigate('/dashboard');
         } catch (error) {
@@ -74,6 +78,7 @@ export const useAuthStore = () => {
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('token-init-date', new Date().getTime());
                     dispatch(login(data.user));
+                    startSetWorksSpaces();
                     navigate('/dashboard');
                     dispatch(onLoading(false));
                 } catch (error) {

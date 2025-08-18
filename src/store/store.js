@@ -4,16 +4,18 @@ import storage from 'redux-persist/lib/storage'; // default es localStorage
 import { persistReducer, persistStore } from 'redux-persist';
 import { combineReducers } from 'redux';
 import { uiSlice } from './ui';
+import { workSpaceSlice } from './dashboard';
 
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: [], // Nombras los reducers que quieres persistir
+  whitelist: ['workSpace'], // Nombras los reducers que quieres persistir
 };
 
 const rootReducer = combineReducers({
   auth: authSlice.reducer,
   ui: uiSlice.reducer,
+  workSpace: workSpaceSlice.reducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
