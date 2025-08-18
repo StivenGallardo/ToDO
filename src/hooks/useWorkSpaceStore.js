@@ -24,12 +24,37 @@ export const useWorkSpaceStore = () => {
         }
     }
 
+
+    const startCreateWorkSpace = async (workSpace) => {
+        dispatch(onLoading(true));
+        try {
+            // Crear FormData para enviar el archivo correctamente
+            const formData = new FormData();
+            formData.append('name', workSpace?.name);
+            formData.append('cover_image', workSpace.cover_image);
+            // Agrega otros campos si es necesario
+            const {data} = await managerProjectApi.post('workspaces', formData);
+            dispatch(onSetWorkSpace([...workSpaces, data.data]));
+            dispatch(onLoading(false));
+        } catch (error) {
+            let errors = error?.response?.data?.errors;
+            if(!errors){
+                errors = {
+                    "message": error?.response?.data?.message ?? 'Error inesperado'
+                };
+            }
+            dispatch(onLoading(false));
+            return errors;
+        }   
+    }
+
     return {
         //Properties
         workSpaces,
         activeWorkSpace,
         selectedWorkSpace,
         //Methods
-        startSetWorksSpaces
+        startSetWorksSpaces,
+        startCreateWorkSpace
     }
 }

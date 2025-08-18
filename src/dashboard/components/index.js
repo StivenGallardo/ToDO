@@ -1,2 +1,2 @@
 export * from './Modal'
-export * from './FormCreateTable'
+export * from './FormCreateWorkSpace'

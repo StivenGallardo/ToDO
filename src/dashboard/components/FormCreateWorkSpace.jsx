@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form';
 import {useDropzone} from 'react-dropzone';
+import { useWorkSpaceStore } from '../../hooks';
 export const FormCreateTable = ({onClose}) => {
-    const [image, setImage] = useState(null);
+    const [coverImage, setCoverImage] = useState(null);
+    const [errorsForm, setErrorsForm] = useState({});
     const [preview, setPreview] = useState(null);
 
     const {
@@ -14,13 +16,15 @@ export const FormCreateTable = ({onClose}) => {
     } = useForm({
         defaultValues: {
             nametable: "",
-            image: null,
+            cover_image: null,
         }
     });
 
-    // Registrar el campo 'image' para validación
+    const {startCreateWorkSpace} = useWorkSpaceStore();
+
+    // Registrar el campo 'cover_image' para validación
     React.useEffect(() => {
-        register('image', {
+        register('cover_image', {
             required: 'La imagen es obligatoria',
             validate: {
                 isImage: (file) => {
@@ -35,14 +39,19 @@ export const FormCreateTable = ({onClose}) => {
     }, [register]);
 
     const onSubmit = async(data) => {
-        if (!image) {
-            setValue('image', null, { shouldValidate: true });
-            await trigger('image');
+        if (!coverImage) {
+            setValue('cover_image', null, { shouldValidate: true });
+            await trigger('cover_image');
             return;
         }
-        data.image = image;
-        console.log('Form submitted:', data);
-        onClose();
+        data.cover_image = coverImage;
+        const resp = await startCreateWorkSpace(data);
+        console.log(resp);
+        if(!resp){
+            onClose();
+            return;
+        }
+        setErrorsForm(resp);
     };
 
     // Integración con useDropzone
@@ -60,10 +69,10 @@ export const FormCreateTable = ({onClose}) => {
         maxFiles: 1,
         onDrop: (acceptedFiles) => {
             if (acceptedFiles && acceptedFiles[0]) {
-                setImage(acceptedFiles[0]);
+                setCoverImage(acceptedFiles[0]);
                 setPreview(URL.createObjectURL(acceptedFiles[0]));
-                setValue('image', acceptedFiles[0], { shouldValidate: true });
-                trigger('image');
+                setValue('cover_image', acceptedFiles[0], { shouldValidate: true });
+                trigger('cover_image');
             }
         }
     });
@@ -89,6 +98,7 @@ export const FormCreateTable = ({onClose}) => {
                     })}
                 />
                 {errors.name && <p className="text-red-500 text-xs italic">{errors.name.message}</p>}
+                {errorsForm?.name && <p className="text-red-500 text-xs italic">{errorsForm?.name}</p>}
                 <label className="font-medium">Imagen</label>
                 <div {...getRootProps({ className: 'border rounded px-3 py-6 text-center cursor-pointer bg-gray-50' })}>
                     <input {...getInputProps()} />
@@ -103,7 +113,8 @@ export const FormCreateTable = ({onClose}) => {
                         <img src={preview} alt="Preview" className="h-32 w-auto rounded shadow" />
                     </div>
                 )}
-                {errors.image && <p className="text-red-500 text-xs italic">{errors.image.message || 'La imagen es obligatoria'}</p>}
+                {errors.cover_image && <p className="text-red-500 text-xs italic">{errors.cover_image.message || 'La imagen es obligatoria'}</p>}
+                {errorsForm?.cover_image && <p className="text-red-500 text-xs italic">{errorsForm?.cover_image}</p>}
                 <div className="flex items-center justify-end gap-4">
 
                     <button
