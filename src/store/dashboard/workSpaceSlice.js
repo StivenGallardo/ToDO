@@ -6,6 +6,7 @@ export const workSpaceSlice = createSlice({
           workSpaces : [],
           activeWorkSpace : null,
           selectedWorkSpace: null,
+          workSpaceLists: [],
 
 
      },
@@ -26,6 +27,10 @@ export const workSpaceSlice = createSlice({
 
           onSelectedWorkSpace: (state, {payload}) => {
                state.selectedWorkSpace = payload;
+          },
+
+          onWorkSpaceLists: (state, {payload}) => {
+               state.workSpaceLists = payload;
           }
      }
 });
@@ -33,8 +38,9 @@ export const workSpaceSlice = createSlice({
 
 // Action creators are generated for each case reducer function
 export const { 
-     onSetActiveWorkSpace, 
-     onAddNewWorkSpace, 
-     onSetWorkSpace, 
-     onSelectedWorkSpace, 
+     onSetActiveWorkSpace,
+     onAddNewWorkSpace,
+     onSetWorkSpace,
+     onSelectedWorkSpace,
+     onWorkSpaceLists,
 } = workSpaceSlice.actions;

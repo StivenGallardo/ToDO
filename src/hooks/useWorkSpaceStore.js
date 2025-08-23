@@ -1,12 +1,12 @@
 import { useDispatch, useSelector } from "react-redux"
 import managerProjectApi from "../api/managerProjectApi";
-import { onLoading, onSetWorkSpace, onSelectedWorkSpace} from "../store";
+import { onLoading, onSetWorkSpace, onSelectedWorkSpace, onWorkSpaceLists} from "../store";
 import { useNavigate } from "react-router-dom";
 
 export const useWorkSpaceStore = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const {workSpaces, activeWorkSpace, selectedWorkSpace} = useSelector(state => state.workSpace);
+    const {workSpaces, activeWorkSpace, selectedWorkSpace, workSpaceLists} = useSelector(state => state.workSpace);
 
     const startSetWorksSpaces = async () => {
         dispatch(onLoading(true));
@@ -53,13 +53,11 @@ export const useWorkSpaceStore = () => {
     const setSelectedWorkSpace = async (workSpace) => {
         dispatch(onLoading(true));
         dispatch(onSelectedWorkSpace({...workSpace}));
-        navigate(`/dashboard/workspace/${workSpace.id}`);
-        dispatch(onLoading(false));
-        /*try {
-            const {data} = await managerProjectApi.post(`project/${project.id}/information`);
-            dispatch(onSelectedWorkSpace({workSpace}));
+        try {
+            const {data} = await managerProjectApi.get(`workspace-lists?workspace_id=${workSpace.id}`);
+            dispatch(onWorkSpaceLists(data));
             dispatch(onLoading(false));
-            navigate('/workspace/'+workSpace.id);
+            navigate(`/dashboard/workspace/${workSpace.id}`);
         } catch (error) {
             let errors = error?.response?.data?.errors;
             if(!errors){
@@ -69,7 +67,7 @@ export const useWorkSpaceStore = () => {
             }
             dispatch(onLoading(false));
             return errors;
-        }*/
+        }
     }
 
     return {
@@ -77,6 +75,7 @@ export const useWorkSpaceStore = () => {
         workSpaces,
         activeWorkSpace,
         selectedWorkSpace,
+        workSpaceLists,
         //Methods
         startSetWorksSpaces,
         startCreateWorkSpace,
