@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Modal from '../components/Modal';
 import { FormCreateTable } from '../components';
 
-const DashboardLayout = ({ children }) => {
+const DashboardLayout = ({ children, classNameMain = '' }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [open, setOpen] = useState(false);
     return (
@@ -44,7 +44,7 @@ const DashboardLayout = ({ children }) => {
                 )}
             </div>
             </header>
-            <main className="">{children}</main>
+            <main className={classNameMain}>{children}</main>
         </div>
     );
 };

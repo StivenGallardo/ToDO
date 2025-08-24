@@ -55,7 +55,7 @@ export const useWorkSpaceStore = () => {
         dispatch(onSelectedWorkSpace({...workSpace}));
         try {
             const {data} = await managerProjectApi.get(`workspace-lists?workspace_id=${workSpace.id}`);
-            dispatch(onWorkSpaceLists(data));
+            dispatch(onWorkSpaceLists(data?.data));
             dispatch(onLoading(false));
             navigate(`/dashboard/workspace/${workSpace.id}`);
         } catch (error) {

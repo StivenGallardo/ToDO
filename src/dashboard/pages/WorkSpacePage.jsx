@@ -6,7 +6,7 @@ const WorkSpacePage = () => {
     const {selectedWorkSpace} = useWorkSpaceStore();
 
     return (
-        <DashboardLayout>
+        <DashboardLayout classNameMain='overflow-hidden'>
             <div className='flex flex-wrap w-full px-7 py-3 bg-blue-950'>
                 <p className='text-white font-bold text-xl' >{selectedWorkSpace.name}</p>
             </div>

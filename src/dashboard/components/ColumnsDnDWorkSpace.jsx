@@ -12,6 +12,7 @@ import {
 } from '@dnd-kit/sortable';
 import { SortableItem } from './SortableDnDHelpers';
 import { useWorkSpaceStore } from '../../hooks/useWorkSpaceStore';
+import { useForm } from 'react-hook-form';
 
 
 const isColumn = (id) => typeof id === 'string' && id.startsWith('col-');
@@ -20,10 +21,11 @@ const isItem   = (id) => typeof id === 'string' && id.startsWith('item-');
 export default function ColumnsDnDWorkSpace() {
 
   const {workSpaceLists} = useWorkSpaceStore();
-
+  const [errorsForm, setErrorsForm] = useState({});
   const [columns, setColumns] = useState(workSpaceLists);
   const [activeId, setActiveId] = useState(null);
   const [overId, setOverId] = useState(null);
+  const [initCreateWorkSpaceList, setInitCreateWorkSpaceList] = useState(false);
 
   const findContainer = (id) => {
     if (!id) return null;
@@ -63,82 +65,103 @@ export default function ColumnsDnDWorkSpace() {
     setOverId(over.id);
   };
 
-const handleDragEnd = (event) => {
-  const { active, over } = event;
-  setActiveId(null);
-  setOverId(null);
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    setActiveId(null);
+    setOverId(null);
 
-  if (!over) return;
-  if (active.id === over.id) return; // soltaste sobre el mismo elemento
+    if (!over) return;
+    if (active.id === over.id) return; // soltaste sobre el mismo elemento
 
-  // --- REORDENAR COLUMNAS ---
-  if (isColumn(active.id)) {
-    const targetColId = isColumn(over.id) ? over.id : findContainer(over.id);
-    if (!targetColId || targetColId === active.id) return;
+    // --- REORDENAR COLUMNAS ---
+    if (isColumn(active.id)) {
+      const targetColId = isColumn(over.id) ? over.id : findContainer(over.id);
+      if (!targetColId || targetColId === active.id) return;
 
-    const oldIndex = columns.findIndex(c => c.id === active.id);
-    const newIndex = columns.findIndex(c => c.id === targetColId);
-    if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return;
-
-    setColumns(arrayMove(columns, oldIndex, newIndex));
-    return;
-  }
-
-  // --- MOVER ITEMS ---
-  if (isItem(active.id)) {
-    const sourceColId = findContainer(active.id);
-    const targetColId = isItem(over.id) ? findContainer(over.id) : (isColumn(over.id) ? over.id : null);
-    if (!sourceColId || !targetColId) return;
-
-    const sourceIdx = columns.findIndex(c => c.id === sourceColId);
-    const targetIdx = columns.findIndex(c => c.id === targetColId);
-    if (sourceIdx === -1 || targetIdx === -1) return;
-
-    // Reordenar dentro de la MISMA columna -> usar arrayMove
-    if (sourceColId === targetColId) {
-      const items = columns[sourceIdx].items;
-      const oldIndex = items.findIndex(i => i.id === active.id);
-
-      // Si "over" es item, tomamos su índice; si es columna, queremos mover al final
-      const newIndex = isItem(over.id)
-        ? items.findIndex(i => i.id === over.id)
-        : items.length - 1;
-
-      // Si el índice no cambia, no tocar el estado
+      const oldIndex = columns.findIndex(c => c.id === active.id);
+      const newIndex = columns.findIndex(c => c.id === targetColId);
       if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return;
 
-      const next = [...columns];
-      next[sourceIdx] = { ...next[sourceIdx], items: arrayMove(items, oldIndex, newIndex) };
-      setColumns(next);
+      setColumns(arrayMove(columns, oldIndex, newIndex));
       return;
     }
 
-    // Mover ENTRE columnas
-    const sourceItems = [...columns[sourceIdx].items];
-    const targetItems = [...columns[targetIdx].items];
+    // --- MOVER ITEMS ---
+    if (isItem(active.id)) {
+      const sourceColId = findContainer(active.id);
+      const targetColId = isItem(over.id) ? findContainer(over.id) : (isColumn(over.id) ? over.id : null);
+      if (!sourceColId || !targetColId) return;
 
-    const movingIndex = sourceItems.findIndex(i => i.id === active.id);
-    if (movingIndex === -1) return;
+      const sourceIdx = columns.findIndex(c => c.id === sourceColId);
+      const targetIdx = columns.findIndex(c => c.id === targetColId);
+      if (sourceIdx === -1 || targetIdx === -1) return;
 
-    const [movingItem] = sourceItems.splice(movingIndex, 1);
+      // Reordenar dentro de la MISMA columna -> usar arrayMove
+      if (sourceColId === targetColId) {
+        const items = columns[sourceIdx].items;
+        const oldIndex = items.findIndex(i => i.id === active.id);
 
-    // Si "over" es item => insert antes de ese item; si es columna => al final
-    const insertIndex = isItem(over.id)
-      ? Math.max(0, targetItems.findIndex(i => i.id === over.id))
-      : targetItems.length;
+        // Si "over" es item, tomamos su índice; si es columna, queremos mover al final
+        const newIndex = isItem(over.id)
+          ? items.findIndex(i => i.id === over.id)
+          : items.length - 1;
 
-    targetItems.splice(insertIndex < 0 ? targetItems.length : insertIndex, 0, movingItem);
+        // Si el índice no cambia, no tocar el estado
+        if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return;
 
-    const next = [...columns];
-    next[sourceIdx] = { ...next[sourceIdx], items: sourceItems };
-    next[targetIdx] = { ...next[targetIdx], items: targetItems };
-    setColumns(next);
-  }
-};
+        const next = [...columns];
+        next[sourceIdx] = { ...next[sourceIdx], items: arrayMove(items, oldIndex, newIndex) };
+        setColumns(next);
+        return;
+      }
+
+      // Mover ENTRE columnas
+      const sourceItems = [...columns[sourceIdx].items];
+      const targetItems = [...columns[targetIdx].items];
+
+      const movingIndex = sourceItems.findIndex(i => i.id === active.id);
+      if (movingIndex === -1) return;
+
+      const [movingItem] = sourceItems.splice(movingIndex, 1);
+
+      // Si "over" es item => insert antes de ese item; si es columna => al final
+      const insertIndex = isItem(over.id)
+        ? Math.max(0, targetItems.findIndex(i => i.id === over.id))
+        : targetItems.length;
+
+      targetItems.splice(insertIndex < 0 ? targetItems.length : insertIndex, 0, movingItem);
+
+      const next = [...columns];
+      next[sourceIdx] = { ...next[sourceIdx], items: sourceItems };
+      next[targetIdx] = { ...next[targetIdx], items: targetItems };
+      setColumns(next);
+    }
+  };
   const activeEntity = getActiveEntity();
 
+  const {
+      register,
+      handleSubmit,
+      setValue,
+      trigger,
+      formState: { errors }
+  } = useForm({
+      defaultValues: {
+          name: "",
+      }
+  });
+
+  const onSubmit = async(data) => {
+    console.log(data);
+  };
+
+  const onClickCreteWorkSpaceList = async() => {
+    setInitCreateWorkSpaceList(!initCreateWorkSpaceList);
+  };
+  
+
   return (
-    <div className="w-full px-7 py-3 flex gap-4 items-start bg-blue-400 min-h-screen">
+    <div className="w-full px-7 py-3 flex gap-4 items-start bg-blue-400 min-h-screen overflow-x-scroll">
       <DndContext
         collisionDetection={closestCenter}
         onDragStart={handleDragStart}
@@ -209,9 +232,59 @@ const handleDragEnd = (event) => {
         </DragOverlay>
       </DndContext>
 
-      <div className="flex flex-wrap w-2/12 bg-blue-500 p-3 cursor-pointer rounded-2xl shadow-md shrink-0">
-        <p className="text-white font-semibold"> + Añadir lista</p>
-      </div>
+      
+        
+        {
+          !initCreateWorkSpaceList
+            ? (
+              <div  onClick={onClickCreteWorkSpaceList} className="flex flex-wrap w-2/12 bg-blue-500 p-3 cursor-pointer rounded-2xl shadow-md shrink-0">
+                <p className="text-white font-semibold"> + Añadir lista</p>
+              </div>
+            )
+            : (
+              <div className="w-2/12 bg-gray-100 p-3 rounded-2xl shadow-md shrink-0">
+                <form onSubmit={handleSubmit(onSubmit)}>
+                  <div className="mb-4">
+                    <label className="text-gray-600 text-sm font-bold mb-2 hidden" htmlFor="name">
+                      Nombres:*
+                    </label>
+                    <input
+                      {...register('name', {
+                        required: 'El nombre es obligatorio',
+                        pattern: {
+                          value: /^[a-zA-Z\\s]+$/,
+                          message: 'El nombre no debe contener caracteres especiales'
+                        },
+                        maxLength: {
+                          value: 60,
+                          message: 'El nombre no debe exceder los 60 caracteres'
+                        }
+                      })}
+                      type="text"
+                      id="name"
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      placeholder="Intruduce el nombre de la lista"
+                      autoComplete='off'
+                    />
+                    {errors.name && <p className="text-red-500 text-xs italic">{errors.name.message}</p>}
+                    {errorsForm?.name && <p className="text-red-500 text-xs italic">{errorsForm?.name}</p>}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <button
+                        type="submit"
+                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer"
+                    >
+                        Añadir Lista
+                    </button>
+                    <button 
+                      className='bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none cursor-pointer' onClick={onClickCreteWorkSpaceList}>X</button>
+                  </div>
+
+                </form>
+              
+              </div>
+            )
+        }
     </div>
   );
 }
