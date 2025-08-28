@@ -20,7 +20,7 @@ const isItem   = (id) => typeof id === 'string' && id.startsWith('item-');
 
 export default function ColumnsDnDWorkSpace() {
 
-  const {workSpaceLists} = useWorkSpaceStore();
+  const {workSpaceLists, startReorderWorkSpaceLists} = useWorkSpaceStore();
   const [columns, setColumns] = useState(workSpaceLists);
   const [activeId, setActiveId] = useState(null);
   const [overId, setOverId] = useState(null);
@@ -68,7 +68,7 @@ export default function ColumnsDnDWorkSpace() {
     setOverId(over.id);
   };
 
-  const handleDragEnd = (event) => {
+  const handleDragEnd = async(event) => {
     const { active, over } = event;
     setActiveId(null);
     setOverId(null);
@@ -85,7 +85,16 @@ export default function ColumnsDnDWorkSpace() {
       const newIndex = columns.findIndex(c => c.id === targetColId);
       if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return;
 
-      setColumns(arrayMove(columns, oldIndex, newIndex));
+      const reorderedColumns = arrayMove(columns, oldIndex, newIndex);
+
+      const updatedPositions = reorderedColumns.map((col, index) => ({
+        id: col.id.replace('col-', ''), // limpiar prefijo si necesario
+        position: index + 1
+      }));
+      
+      await startReorderWorkSpaceLists(updatedPositions, reorderedColumns);
+      
+
       return;
     }
 

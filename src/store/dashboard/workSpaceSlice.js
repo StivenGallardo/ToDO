@@ -31,6 +31,10 @@ export const workSpaceSlice = createSlice({
 
           onWorkSpaceLists: (state, {payload}) => {
                state.workSpaceLists = payload;
+          },
+
+          onUpdateWorkSpaceLists: (state, action) => {
+               state.workSpaceLists = action.payload;
           }
      }
 });
@@ -43,4 +47,5 @@ export const {
      onSetWorkSpace,
      onSelectedWorkSpace,
      onWorkSpaceLists,
+     onUpdateWorkSpaceLists,
 } = workSpaceSlice.actions;
