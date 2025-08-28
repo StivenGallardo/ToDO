@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -11,7 +11,7 @@ import {
   horizontalListSortingStrategy
 } from '@dnd-kit/sortable';
 import { SortableItem } from './SortableDnDHelpers';
-import { useWorkSpaceStore } from '../../hooks/useWorkSpaceStore';
+import { useWorkSpaceStore } from '../../hooks';
 import { useForm } from 'react-hook-form';
 
 
@@ -20,12 +20,16 @@ const isItem   = (id) => typeof id === 'string' && id.startsWith('item-');
 
 export default function ColumnsDnDWorkSpace() {
 
-  const {workSpaceLists} = useWorkSpaceStore();
+  const {workSpaceLists, startCreateWorkSpaceList} = useWorkSpaceStore();
   const [errorsForm, setErrorsForm] = useState({});
   const [columns, setColumns] = useState(workSpaceLists);
   const [activeId, setActiveId] = useState(null);
   const [overId, setOverId] = useState(null);
   const [initCreateWorkSpaceList, setInitCreateWorkSpaceList] = useState(false);
+
+  useEffect(() => {
+    setColumns(workSpaceLists);
+  }, [workSpaceLists]);
 
   const findContainer = (id) => {
     if (!id) return null;
@@ -142,8 +146,6 @@ export default function ColumnsDnDWorkSpace() {
   const {
       register,
       handleSubmit,
-      setValue,
-      trigger,
       formState: { errors }
   } = useForm({
       defaultValues: {
@@ -152,7 +154,12 @@ export default function ColumnsDnDWorkSpace() {
   });
 
   const onSubmit = async(data) => {
-    console.log(data);
+    const resp = await startCreateWorkSpaceList(data);
+    if(!resp){
+        setInitCreateWorkSpaceList(!initCreateWorkSpaceList);
+        return;
+    }
+    setErrorsForm(resp);
   };
 
   const onClickCreteWorkSpaceList = async() => {

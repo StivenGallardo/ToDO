@@ -70,6 +70,27 @@ export const useWorkSpaceStore = () => {
         }
     }
 
+    const startCreateWorkSpaceList = async (workSpaceList) => {
+        dispatch(onLoading(true));
+        try {
+            workSpaceList.workspace_id = selectedWorkSpace.id;
+            const {data} = await managerProjectApi.post('workspace-lists', workSpaceList);
+            dispatch(onWorkSpaceLists([...workSpaceLists, data.data]));
+            dispatch(onLoading(false));
+        } catch (error) {
+            let errors = error?.response?.data?.errors;
+            if(!errors){
+                errors = {
+                    "message": error?.response?.data?.message ?? 'Error inesperado'
+                };
+            }
+            dispatch(onLoading(false));
+            return errors;
+        }   
+    }
+
+
+
     return {
         //Properties
         workSpaces,
@@ -80,5 +101,6 @@ export const useWorkSpaceStore = () => {
         startSetWorksSpaces,
         startCreateWorkSpace,
         setSelectedWorkSpace,
+        startCreateWorkSpaceList,
     }
 }

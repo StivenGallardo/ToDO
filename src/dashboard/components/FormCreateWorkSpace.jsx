@@ -46,7 +46,6 @@ export const FormCreateTable = ({onClose}) => {
         }
         data.cover_image = coverImage;
         const resp = await startCreateWorkSpace(data);
-        console.log(resp);
         if(!resp){
             onClose();
             return;

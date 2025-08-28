@@ -6,7 +6,6 @@ const DashboardPage = () => {
 
 	const onClickWorkSpace = async(item) =>{
 		const resp = await setSelectedWorkSpace(item);
-        console.log(resp);
 	}
 
     return (
