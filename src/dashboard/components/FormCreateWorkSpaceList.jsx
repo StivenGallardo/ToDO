@@ -36,8 +36,8 @@ export const FormCreateWorkSpaceList = ({onClickCreteWorkSpaceList}) => {
                     {...register('name', {
                     required: 'El nombre es obligatorio',
                     pattern: {
-                        value: /^[a-zA-Z\\s]+$/,
-                        message: 'El nombre no debe contener caracteres especiales'
+                        value: /^[a-zA-Z0-9\s]+$/,
+                        message: 'El nombre solo puede contener letras, números y espacios'
                     },
                     maxLength: {
                         value: 60,
