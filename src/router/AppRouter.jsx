@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import ToDo from '../ToDo';
 import AuthRoutes from '../auth/routes/AuthRoutes';
 import DashboardRoutes from '../dashboard/routes/DashboardRoutes';
@@ -11,9 +11,17 @@ function AppRouter() {
 
   const {checkAuthToken} = useAuthStore(); // Obtiene las funciones del store de autenticación
   const {loading} = useUiStore()
+  const location = useLocation();
+
   useEffect(() => {
       checkAuthToken();
   }, []);
+
+  useEffect(() => {
+    if (location.pathname.startsWith('/dashboard')) {
+      localStorage.setItem('redirectAfterLogin', location.pathname + location.search);
+    }
+  }, [location]);
 
   return (
     <>

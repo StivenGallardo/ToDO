@@ -19,7 +19,13 @@ export const useAuthStore = () => {
             dispatch(login(data.user));
             dispatch(onLoading(false));
             startSetWorksSpaces();
-            navigate('/dashboard');
+            const redirectPath = localStorage.getItem('redirectAfterLogin');
+            if (redirectPath) {
+               // localStorage.removeItem('redirectAfterLogin');
+                navigate(redirectPath);
+            } else {
+                //navigate('/dashboard');
+            }
         } catch (error) {
             console.log(error);
             let errors = error?.response?.data;
@@ -43,7 +49,13 @@ export const useAuthStore = () => {
             dispatch(login(data.user));
             startSetWorksSpaces();
             dispatch(onLoading(false));
-            navigate('/dashboard');
+            const redirectPath = localStorage.getItem('redirectAfterLogin');
+            if (redirectPath) {
+                //localStorage.removeItem('redirectAfterLogin');
+                navigate(redirectPath);
+            } else {
+                //navigate('/dashboard');
+            }
         } catch (error) {
             let errors = error?.response?.data;
             if(errors.length == 1){
@@ -79,7 +91,13 @@ export const useAuthStore = () => {
                     localStorage.setItem('token-init-date', new Date().getTime());
                     dispatch(login(data.user));
                     startSetWorksSpaces();
-                    navigate('/dashboard');
+                    const redirectPath = localStorage.getItem('redirectAfterLogin');
+                    if (redirectPath) {
+                        //localStorage.removeItem('redirectAfterLogin');
+                        navigate(redirectPath);
+                    } else {
+                        //navigate('/dashboard');
+                    }
                     dispatch(onLoading(false));
                 } catch (error) {
                     dispatch(logout());
@@ -91,13 +109,6 @@ export const useAuthStore = () => {
             dispatch(onLoading(false));
         }
     }
-
-    const checkoutAuth = () => {
-        if(status === 'authenticated'){
-            navigate('/dashboard');
-        }
-    }
-
     return {
         //Properties
         status,
@@ -106,7 +117,6 @@ export const useAuthStore = () => {
         startLogin,
         startRegister,
         setLogout,
-        checkoutAuth,
         checkAuthToken
     }
 }

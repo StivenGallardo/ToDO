@@ -35,6 +35,10 @@ export const workSpaceSlice = createSlice({
 
           onUpdateWorkSpaceLists: (state, action) => {
                state.workSpaceLists = action.payload;
+          },
+
+          onDeleteWorkSpaceList: (state, {payload}) => {
+               state.workSpaceLists = state.workSpaceLists.filter(list => list.id !== payload);
           }
      }
 });
@@ -48,4 +52,5 @@ export const {
      onSelectedWorkSpace,
      onWorkSpaceLists,
      onUpdateWorkSpaceLists,
+     onDeleteWorkSpaceList,
 } = workSpaceSlice.actions;

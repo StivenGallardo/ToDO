@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux"
 import managerProjectApi from "../api/managerProjectApi";
-import { onLoading, onSetWorkSpace, onSelectedWorkSpace, onWorkSpaceLists, onUpdateWorkSpaceLists} from "../store";
+import { onLoading, onSetWorkSpace, onSelectedWorkSpace, onWorkSpaceLists, onUpdateWorkSpaceLists, onDeleteWorkSpaceList} from "../store";
 import { useNavigate } from "react-router-dom";
 
 export const useWorkSpaceStore = () => {
@@ -108,7 +108,25 @@ export const useWorkSpaceStore = () => {
         }   
     }
 
-
+    const startDeleteWorkSpaceList = async (id) => {
+        dispatch(onLoading(true));
+        // Elimina el prefijo 'col-' si existe
+        const cleanId = typeof id === 'string' ? id.replace(/^col-/, '') : id;
+        try {
+            await managerProjectApi.delete(`workspace-lists/${cleanId}`);
+            dispatch(onDeleteWorkSpaceList(id));
+            dispatch(onLoading(false));
+        } catch (error) {
+            let errors = error?.response?.data?.errors;
+            if(!errors){
+                errors = {
+                    "message": error?.response?.data?.message ?? 'Error inesperado'
+                };
+            }
+            dispatch(onLoading(false));
+            return errors;
+        }
+    }
 
     return {
         //Properties
@@ -122,5 +140,6 @@ export const useWorkSpaceStore = () => {
         setSelectedWorkSpace,
         startCreateWorkSpaceList,
         startReorderWorkSpaceLists,
+        startDeleteWorkSpaceList,
     }
 }

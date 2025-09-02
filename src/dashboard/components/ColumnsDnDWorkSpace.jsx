@@ -20,7 +20,7 @@ const isItem   = (id) => typeof id === 'string' && id.startsWith('item-');
 
 export default function ColumnsDnDWorkSpace() {
 
-  const {workSpaceLists, startReorderWorkSpaceLists} = useWorkSpaceStore();
+  const {workSpaceLists, startReorderWorkSpaceLists, startDeleteWorkSpaceList} = useWorkSpaceStore();
   const [columns, setColumns] = useState(workSpaceLists);
   const [activeId, setActiveId] = useState(null);
   const [overId, setOverId] = useState(null);
@@ -154,7 +154,9 @@ export default function ColumnsDnDWorkSpace() {
   const onClickCreteWorkSpaceList = async() => {
     setInitCreateWorkSpaceList(!initCreateWorkSpaceList);
   };
-  
+  const handleDeleteColumn = async(id) => {
+      await startDeleteWorkSpaceList(id);
+  };
 
   return (
     <div className="w-full px-7 py-3 flex gap-4 items-start bg-blue-400 min-h-screen overflow-x-scroll">
@@ -178,7 +180,16 @@ export default function ColumnsDnDWorkSpace() {
 
               <div className="w-2/12 bg-gray-100 p-3 rounded-2xl shadow-md shrink-0">
                 <SortableItem id={col.id}>
-                  <p className="text-blue-950 font-semibold">{col.title}</p>
+                  <div className="flex justify-between items-center mb-2">
+                    <p className="text-blue-950 font-semibold">{col.title}</p>
+                    <button
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={() => handleDeleteColumn(col.id)}
+                      className="text-red-500 hover:text-red-700 font-bold"
+                    >
+                      ✕
+                    </button>
+                  </div>
 
                   {/* Contexto de items (vertical) */}
                   <SortableContext
